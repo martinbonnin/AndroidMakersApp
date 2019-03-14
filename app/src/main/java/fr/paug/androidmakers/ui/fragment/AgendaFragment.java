@@ -80,7 +80,7 @@ public class AgendaFragment extends Fragment {
         // auto dismiss loading
         new Handler().postDelayed(new RefreshRunnable(this), 3000);
 
-        AgendaRepository.getInstance().load(new AgendaLoadListener(this));
+        AgendaRepository.Companion.getInstance().load(new AgendaLoadListener(this));
 
         initFilters();
 
@@ -127,11 +127,11 @@ public class AgendaFragment extends Fragment {
         addFilter(new SessionFilter(LANGUAGE, "fr"), null);
         addFilter(new SessionFilter(LANGUAGE, "en"), null);
 
-        AgendaRepository.getInstance().load(new AgendaRepository.OnLoadListener() {
+        AgendaRepository.Companion.getInstance().load(new AgendaRepository.OnLoadListener() {
             @Override
             public void onAgendaLoaded() {
                 addFilterHeader(R.string.rooms);
-                SparseArray<Room> rooms = AgendaRepository.getInstance().getAllRooms();
+                SparseArray<Room> rooms = AgendaRepository.Companion.getInstance().getAllRooms();
                 for (int i = 0; i < rooms.size(); i++) {
                     int key = rooms.keyAt(i);
                     String roomName = rooms.get(key).name;
@@ -140,7 +140,7 @@ public class AgendaFragment extends Fragment {
                         addFilter(new SessionFilter(ROOM, key), roomName);
                     }
                 }
-                AgendaRepository.getInstance().removeListener(this);
+                AgendaRepository.Companion.getInstance().removeListener(this);
             }
         });
 
@@ -237,16 +237,16 @@ public class AgendaFragment extends Fragment {
         final SparseArray<DaySchedule> itemByDayOfTheYear = new SparseArray<>();
 
         final Calendar calendar = Calendar.getInstance();
-        final List<ScheduleSlot> scheduleSlots = AgendaRepository.getInstance().getScheduleSlots();
+        final List<ScheduleSlot> scheduleSlots = AgendaRepository.Companion.getInstance().getScheduleSlots();
         for (final ScheduleSlot scheduleSlot : scheduleSlots) {
             final List<ScheduleSession> agendaScheduleSessions = getAgendaItems(
                     itemByDayOfTheYear, calendar, scheduleSlot);
-            agendaScheduleSessions.add(new ScheduleSession(scheduleSlot, getTitle(scheduleSlot.sessionId), getLanguage(scheduleSlot.sessionId)));
+            agendaScheduleSessions.add(new ScheduleSession(scheduleSlot, getTitle(scheduleSlot.getSessionId()), getLanguage(scheduleSlot.getSessionId())));
         }
 
         final List<DaySchedule> days = getItemsOrdered(itemByDayOfTheYear);
 
-        final AgendaPagerAdapter adapter = new AgendaPagerAdapter(getActivity());
+        final AgendaPagerAdapter adapter = new AgendaPagerAdapter(days, getActivity());
         mViewPager.setAdapter(adapter);
         applyFilters();
 
@@ -301,17 +301,17 @@ public class AgendaFragment extends Fragment {
                 getRoomScheduleForDay(itemByDayOfTheYear, calendar, scheduleSlot);
         RoomSchedule roomScheduleForThis = null;
         for (RoomSchedule roomSchedule : roomSchedules) {
-            if (roomSchedule.getRoomId() == scheduleSlot.room) {
+            if (roomSchedule.getRoomId() == scheduleSlot.getRoom()) {
                 roomScheduleForThis = roomSchedule;
                 break;
             }
         }
         if (roomScheduleForThis == null) {
             List<ScheduleSession> agendaScheduleSessions = new ArrayList<>();
-            Room room = AgendaRepository.getInstance().getRoom(scheduleSlot.room);
+            Room room = AgendaRepository.Companion.getInstance().getRoom(scheduleSlot.getRoom());
             String titleRoom = (room == null) ? null : room.name;
             roomScheduleForThis = new RoomSchedule(
-                    scheduleSlot.room, titleRoom, agendaScheduleSessions);
+                    scheduleSlot.getRoom(), titleRoom, agendaScheduleSessions);
             roomSchedules.add(roomScheduleForThis);
             Collections.sort(roomSchedules);
             return agendaScheduleSessions;
@@ -323,7 +323,7 @@ public class AgendaFragment extends Fragment {
     private List<RoomSchedule> getRoomScheduleForDay(
             SparseArray<DaySchedule> itemByDayOfTheYear,
             Calendar calendar, ScheduleSlot scheduleSlot) {
-        calendar.setTimeInMillis(scheduleSlot.startDate);
+        calendar.setTimeInMillis(scheduleSlot.getStartDate());
         int dayIndex = calendar.get(Calendar.DAY_OF_YEAR) + calendar.get(Calendar.YEAR) * 1000;
         DaySchedule daySchedule = itemByDayOfTheYear.get(dayIndex);
         if (daySchedule == null) {
@@ -354,13 +354,13 @@ public class AgendaFragment extends Fragment {
     }
 
     private String getTitle(int sessionId) {
-        Session session = AgendaRepository.getInstance().getSession(sessionId);
-        return session == null ? "?" : session.title;
+        Session session = AgendaRepository.Companion.getInstance().getSession(sessionId);
+        return session == null ? "?" : session.getTitle();
     }
 
     private String getLanguage(int sessionId) {
-        Session session = AgendaRepository.getInstance().getSession(sessionId);
-        return session == null ? "?" : session.language;
+        Session session = AgendaRepository.Companion.getInstance().getSession(sessionId);
+        return session == null ? "?" : session.getLanguage();
     }
 
     private static class RefreshRunnable implements Runnable {

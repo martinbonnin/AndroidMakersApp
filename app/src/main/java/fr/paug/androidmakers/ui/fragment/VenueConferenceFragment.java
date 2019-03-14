@@ -17,7 +17,7 @@ public class VenueConferenceFragment extends AbstractVenueFragment {
 
     @Override
     protected Venue getVenueInformation() {
-        Venue conference = AgendaRepository.getInstance().getVenue(1);
+        Venue conference = AgendaRepository.Companion.getInstance().getVenue(1);
         if (conference != null) {
             return conference;
         } else {

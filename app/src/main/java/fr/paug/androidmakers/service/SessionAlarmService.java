@@ -110,30 +110,30 @@ public class SessionAlarmService extends JobIntentService {
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                final List<ScheduleSlot> scheduleSlots = AgendaRepository.getInstance()
+                final List<ScheduleSlot> scheduleSlots = AgendaRepository.Companion.getInstance()
                         .getScheduleSlots();
 
                 // first unschedule all sessions
                 // this is done in case the session slot has changed
                 for (ScheduleSlot scheduleSlot : scheduleSlots) {
-                    unscheduleAlarm(scheduleSlot.sessionId);
+                    unscheduleAlarm(scheduleSlot.getSessionId());
                 }
 
                 for (String id : SessionSelector.getInstance().getSessionsSelected()) {
-                    String sessionYearId = id.replace(AgendaRepository.CURRENT_YEAR_NODE + "_", "");
+                    String sessionYearId = id.replace(AgendaRepository.Companion.getCURRENT_YEAR_NODE() + "_", "");
                     logDebug("session id without year: " + sessionYearId);
-                    ScheduleSlot scheduleSlot = AgendaRepository.getInstance().getScheduleSlot(sessionYearId);
+                    ScheduleSlot scheduleSlot = AgendaRepository.Companion.getInstance().getScheduleSlot(sessionYearId);
 
                     if (scheduleSlot != null) {
                         Log.i("SessionAlarmService", scheduleSlot.toString());
-                        scheduleAlarm(scheduleSlot.startDate, scheduleSlot.endDate,
-                                scheduleSlot.sessionId, false);
+                        scheduleAlarm(scheduleSlot.getStartDate(), scheduleSlot.getEndDate(),
+                                scheduleSlot.getSessionId(), false);
                     }
                 }
                 latch.countDown();
             }
         };
-        AgendaRepository.getInstance().load(new AgendaLoadListener(runnable));
+        AgendaRepository.Companion.getInstance().load(new AgendaLoadListener(runnable));
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -172,8 +172,8 @@ public class SessionAlarmService extends JobIntentService {
             }
         }
 
-        final Session sessionToNotify = AgendaRepository.getInstance().getSession(sessionId);
-        final ScheduleSlot slotToNotify = AgendaRepository.getInstance().getScheduleSlot(sessionId);
+        final Session sessionToNotify = AgendaRepository.Companion.getInstance().getSession(sessionId);
+        final ScheduleSlot slotToNotify = AgendaRepository.Companion.getInstance().getScheduleSlot(sessionId);
         if (sessionToNotify == null || slotToNotify == null) {
             Log.w(TAG, "Cannot find session " + sessionId + " either in sessions or in slots");
             return;
@@ -181,12 +181,12 @@ public class SessionAlarmService extends JobIntentService {
 
         final String sessionDate = DateUtils.formatDateRange(this,
                 new Formatter(Locale.getDefault()),
-                slotToNotify.startDate,
-                slotToNotify.endDate,
+                slotToNotify.getStartDate(),
+                slotToNotify.getEndDate(),
                 DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_ABBREV_WEEKDAY | DateUtils.FORMAT_SHOW_TIME,
                 null).toString();
 
-        final Room room = AgendaRepository.getInstance().getRoom(slotToNotify.room);
+        final Room room = AgendaRepository.Companion.getInstance().getRoom(slotToNotify.getRoom());
         final String roomName = ((room != null) ? room.name : "") + " - ";
 
         logDebug("Scheduling alarm for " + alarmTime + " = " + (new Date(alarmTime)).toString());
@@ -201,7 +201,7 @@ public class SessionAlarmService extends JobIntentService {
         notificationIntent.putExtra(EXTRA_SESSION_END, sessionEnd);
         logDebug("-> Intent extra: session end " + sessionEnd);
         notificationIntent.putExtra(EXTRA_SESSION_ID, sessionId);
-        notificationIntent.putExtra(EXTRA_NOTIFICATION_TITLE, sessionToNotify.title);
+        notificationIntent.putExtra(EXTRA_NOTIFICATION_TITLE, sessionToNotify.getTitle());
         notificationIntent.putExtra(EXTRA_NOTIFICATION_CONTENT, roomName + sessionDate);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, sessionId, notificationIntent, 0);
@@ -295,7 +295,7 @@ public class SessionAlarmService extends JobIntentService {
         @Override
         public void onAgendaLoaded() {
             runnable.run();
-            AgendaRepository.getInstance().removeListener(this);
+            AgendaRepository.Companion.getInstance().removeListener(this);
         }
     }
 

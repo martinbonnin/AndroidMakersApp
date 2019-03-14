@@ -98,12 +98,12 @@ public class SessionDetailActivity extends BaseActivity implements YouTubeThumbn
         super.onCreate(savedInstanceState);
         final ActivityDetailBinding activityDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
         sessionId = getIntent().getIntExtra(PARAM_SESSION_ID, -1);
-        session = AgendaRepository.getInstance().getSession(sessionId);
+        session = AgendaRepository.Companion.getInstance().getSession(sessionId);
 
         sessionStartDateInMillis = getIntent().getLongExtra(PARAM_SESSION_START_DATE, -1);
         sessionEndDateInMillis = getIntent().getLongExtra(PARAM_SESSION_END_DATE, -1);
 
-        final Room sessionRoom = AgendaRepository.getInstance().getRoom(
+        final Room sessionRoom = AgendaRepository.Companion.getInstance().getRoom(
                 getIntent().getIntExtra(PARAM_SESSION_ROOM, -1)
         );
 
@@ -124,11 +124,11 @@ public class SessionDetailActivity extends BaseActivity implements YouTubeThumbn
                 !TextUtils.isEmpty(sessionRoom.name) ?
                 getString(R.string.sessionDateWithRoomPlaceholder, sessionDate, sessionRoom.name) : sessionDate;
 
-        activityDetailBinding.sessionTitleTextView.setText(session.title);
+        activityDetailBinding.sessionTitleTextView.setText(session.getTitle());
         activityDetailBinding.sessionDateAndRoomTextView.setText(sessionDateAndRoom);
         activityDetailBinding.sessionDescriptionTextView.setMovementMethod(LinkMovementMethod.getInstance());
-        activityDetailBinding.sessionDescriptionTextView.setText(session.description != null ?
-                Html.fromHtml(session.description.trim()) : "");
+        activityDetailBinding.sessionDescriptionTextView.setText(session.getDescription() != null ?
+                Html.fromHtml(session.getDescription().trim()) : "");
 
         final int languageFullNameRes = session.getLanguageName();
         if (languageFullNameRes != R.string.no_language) {
@@ -137,29 +137,29 @@ public class SessionDetailActivity extends BaseActivity implements YouTubeThumbn
             activityDetailBinding.sessionLanguageChip.setVisibility(View.GONE);
         }
 
-        if (session.subtype != null) {
-            String capitalizedSubType = session.subtype.substring(0, 1).toUpperCase() + session.subtype.substring(1);
+        if (session.getSubtype() != null) {
+            String capitalizedSubType = session.getSubtype().substring(0, 1).toUpperCase() + session.getSubtype().substring(1);
             activityDetailBinding.sessionSubTypeChip.setText(capitalizedSubType);
         } else {
             activityDetailBinding.sessionSubTypeChip.setVisibility(View.GONE);
         }
 
-        if (session.type != null) {
-            activityDetailBinding.sessionTypeChip.setText(session.type);
+        if (session.getType() != null) {
+            activityDetailBinding.sessionTypeChip.setText(session.getType());
         } else {
             activityDetailBinding.sessionTypeChip.setVisibility(View.GONE);
         }
 
-        if (session.experience != null) {
-            activityDetailBinding.sessionExperienceChip.setText(session.experience);
+        if (session.getExperience() != null) {
+            activityDetailBinding.sessionExperienceChip.setText(session.getExperience());
         } else {
             activityDetailBinding.sessionExperienceChip.setVisibility(View.GONE);
         }
 
         final ViewGroup sessionSpeakerLayout = findViewById(R.id.sessionSpeakerLayout);
-        if (session.speakers != null && session.speakers.length > 0) {
-            for (final int speakerID : session.speakers) {
-                final Speaker speaker = AgendaRepository.getInstance().getSpeaker(speakerID);
+        if (session.getSpeakers() != null && session.getSpeakers().length > 0) {
+            for (final int speakerID : session.getSpeakers()) {
+                final Speaker speaker = AgendaRepository.Companion.getInstance().getSpeaker(speakerID);
                 if (speaker != null) {
                     speakersList.add(speaker.getFullNameAndCompany());
 
@@ -218,8 +218,8 @@ public class SessionDetailActivity extends BaseActivity implements YouTubeThumbn
     }
 
     private void setSpeakerSocialNetworkHandle(Speaker speaker, DetailViewSpeakerInfoElementBinding speakerInfoElementBinding) {
-        if (speaker.socialNetworkHandles != null && speaker.socialNetworkHandles.size() > 0) {
-            for (final SocialNetworkHandle socialNetworkHandle : speaker.socialNetworkHandles) {
+        if (speaker.getSocialNetworkHandles() != null && speaker.getSocialNetworkHandles().size() > 0) {
+            for (final SocialNetworkHandle socialNetworkHandle : speaker.getSocialNetworkHandles()) {
                 if (socialNetworkHandle.networkType != SocialNetworkHandle.SocialNetworkType.Unknown) {
                     final SmallSocialImageBinding smallSocialImageBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.small_social_image, null, false);
                     smallSocialImageBinding.setSocialHandle(socialNetworkHandle);
@@ -245,8 +245,8 @@ public class SessionDetailActivity extends BaseActivity implements YouTubeThumbn
     }
 
     private void setSpeakerRibbons(Speaker speaker, DetailViewSpeakerInfoElementBinding speakerInfoElementBinding) {
-        if (speaker.ribbonList != null && speaker.ribbonList.size() > 0) {
-            for (final Ribbon ribbon : speaker.ribbonList) {
+        if (speaker.getRibbonList() != null && speaker.getRibbonList().size() > 0) {
+            for (final Ribbon ribbon : speaker.getRibbonList()) {
                 if (ribbon.ribbonType != Ribbon.RibbonType.NONE) {
                     final SmallRibbonImageBinding smallRibbonImageBinding =
                             DataBindingUtil.inflate(getLayoutInflater(), R.layout.small_ribbon_image, null, false);
@@ -277,7 +277,7 @@ public class SessionDetailActivity extends BaseActivity implements YouTubeThumbn
     private void setActionBar(Session session) {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(session.title);
+            getSupportActionBar().setTitle(session.getTitle());
         }
     }
 
@@ -318,13 +318,13 @@ public class SessionDetailActivity extends BaseActivity implements YouTubeThumbn
         String speakers = TextUtils.join(", ", speakersList);
 
         Intent shareSessionIntent = new Intent(Intent.ACTION_SEND);
-        shareSessionIntent.putExtra(Intent.EXTRA_SUBJECT, session.title);
+        shareSessionIntent.putExtra(Intent.EXTRA_SUBJECT, session.getTitle());
         if (speakersList.isEmpty()) {
             shareSessionIntent.putExtra(Intent.EXTRA_TEXT,
-                    String.format("%s: %s (%s)", getString(R.string.app_name), session.title, sessionDateAndRoom));
+                    String.format("%s: %s (%s)", getString(R.string.app_name), session.getTitle(), sessionDateAndRoom));
         } else {
             shareSessionIntent.putExtra(Intent.EXTRA_TEXT,
-                    String.format("%s: %s (%s, %s, %s)", getString(R.string.app_name), session.title, speakers, sessionDateAndRoom, getString(session.getLanguageName())));
+                    String.format("%s: %s (%s, %s, %s)", getString(R.string.app_name), session.getTitle(), speakers, sessionDateAndRoom, getString(session.getLanguageName())));
         }
         shareSessionIntent.setType("text/plain");
         startActivity(shareSessionIntent);
@@ -332,17 +332,17 @@ public class SessionDetailActivity extends BaseActivity implements YouTubeThumbn
 
     // region Video management
     private void setVideoThumbnail(ActivityDetailBinding activityDetailBinding) {
-        if (TextUtils.isEmpty(session.videoURL))
+        if (TextUtils.isEmpty(session.getVideoURL()))
             return;
 
-        videoID = YoutubeUtil.getVideoID(session.videoURL);
+        videoID = YoutubeUtil.getVideoID(session.getVideoURL());
         if (!TextUtils.isEmpty(videoID)) {
             playButton = activityDetailBinding.playButton;
             activityDetailBinding.videoThumbnail.initialize(BuildConfig.YOUTUBE_API_KEY, this);
             activityDetailBinding.videoThumbnail.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final Uri videoUri = YoutubeUtil.getVideoUri(session.videoURL);
+                    final Uri videoUri = YoutubeUtil.getVideoUri(session.getVideoURL());
                     if (videoUri != null) {
                         startActivity(new Intent(Intent.ACTION_VIEW, videoUri));
                     } else {

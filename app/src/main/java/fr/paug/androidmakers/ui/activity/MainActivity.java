@@ -140,9 +140,9 @@ public class MainActivity extends BaseActivity {
             final String[] split = uriFragment.split("session-");
             if (split.length > 1 && TextUtils.isDigitsOnly(split[1])) {
                 final Integer sessionId = Integer.valueOf(split[1]);
-                for (final ScheduleSlot scheduleSlot : AgendaRepository.getInstance().getScheduleSlots()) {
-                    if (scheduleSlot.sessionId == sessionId) {
-                        SessionDetailActivity.startActivity(this, sessionId, scheduleSlot.startDate, scheduleSlot.endDate, scheduleSlot.room);
+                for (final ScheduleSlot scheduleSlot : AgendaRepository.Companion.getInstance().getScheduleSlots()) {
+                    if (scheduleSlot.getSessionId() == sessionId) {
+                        SessionDetailActivity.startActivity(this, sessionId, scheduleSlot.getStartDate(), scheduleSlot.getEndDate(), scheduleSlot.getRoom());
                         break;
                     }
                 }

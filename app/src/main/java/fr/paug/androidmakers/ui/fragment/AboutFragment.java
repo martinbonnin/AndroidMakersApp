@@ -53,7 +53,7 @@ public class AboutFragment extends Fragment implements View.OnClickListener {
         fragmentAboutBinding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_about, container, false);
 
-        final Map<PartnerGroup.PartnerType, PartnerGroup> partners = AgendaRepository.getInstance().getPartners();
+        final Map<PartnerGroup.PartnerType, PartnerGroup> partners = AgendaRepository.Companion.getInstance().getPartners();
 
         if (partners != null) {
             for (PartnerGroup.PartnerType partnerType : PartnerGroup.PartnerType.values()) {

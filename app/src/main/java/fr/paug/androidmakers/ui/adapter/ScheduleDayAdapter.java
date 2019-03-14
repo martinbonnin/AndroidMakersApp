@@ -328,7 +328,7 @@ public class ScheduleDayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             sessionDuration, roomTitle, EmojiCompat.get().process(scheduleSession.getLanguageInEmoji())));
                 }
             } else {
-                final int languageStringRes = Session.getLanguageFullName(scheduleSession.getLanguage());
+                final int languageStringRes = Session.Companion.getLanguageFullName(scheduleSession.getLanguage());
                 if (roomTitle.isEmpty()) {
                     if (languageStringRes != 0) {
                         descriptionBuilder.append(resources.getString(R.string.session_description_placeholder,
@@ -347,15 +347,15 @@ public class ScheduleDayAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
             }
 
-            Session session = AgendaRepository.getInstance().getSession(scheduleSession.getSessionId());
-            if (session != null && session.speakers != null) {
+            Session session = AgendaRepository.Companion.getInstance().getSession(scheduleSession.getSessionId());
+            if (session != null && session.getSpeakers() != null) {
                 descriptionBuilder.append('\n');
-                for (int i = 0; i < session.speakers.length; i++) {
-                    final Speaker speaker = AgendaRepository.getInstance().getSpeaker(session.speakers[i]);
+                for (int i = 0; i < session.getSpeakers().length; i++) {
+                    final Speaker speaker = AgendaRepository.Companion.getInstance().getSpeaker(session.getSpeakers()[i]);
 
                     if (speaker != null) {
                         descriptionBuilder.append(speaker.getFullName().trim());
-                        if (i != session.speakers.length - 1) descriptionBuilder.append(", ");
+                        if (i != session.getSpeakers().length - 1) descriptionBuilder.append(", ");
                     }
                 }
             }

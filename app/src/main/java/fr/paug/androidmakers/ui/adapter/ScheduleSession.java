@@ -18,11 +18,11 @@ public class ScheduleSession implements Comparable<ScheduleSession> {
     }
 
     public long getStartTimestamp() {
-        return mScheduleSlot.startDate;
+        return mScheduleSlot.getStartDate();
     }
 
     public long getEndTimestamp() {
-        return mScheduleSlot.endDate;
+        return mScheduleSlot.getEndDate();
     }
 
     public String getTitle() {
@@ -38,11 +38,11 @@ public class ScheduleSession implements Comparable<ScheduleSession> {
     }
 
     public int getRoomId() {
-        return mScheduleSlot.room;
+        return mScheduleSlot.getRoom();
     }
 
     public int getSessionId() {
-        return mScheduleSlot.sessionId;
+        return mScheduleSlot.getSessionId();
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ScheduleSession implements Comparable<ScheduleSession> {
 
     @Override
     public int compareTo(@NonNull ScheduleSession o) {
-        return Long.valueOf(this.mScheduleSlot.startDate).compareTo(o.mScheduleSlot.startDate);
+        return Long.valueOf(this.mScheduleSlot.getStartDate()).compareTo(o.mScheduleSlot.getStartDate());
     }
 
 }

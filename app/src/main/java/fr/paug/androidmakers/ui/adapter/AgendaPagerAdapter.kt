@@ -11,7 +11,6 @@ import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.firebase.firestore.FirebaseFirestore
 
 import java.util.ArrayList
 import java.util.HashSet
@@ -21,13 +20,11 @@ import fr.paug.androidmakers.ui.activity.SessionDetailActivity
 import fr.paug.androidmakers.ui.util.SessionFilter
 import fr.paug.androidmakers.util.sticky_headers.StickyHeadersLinearLayoutManager
 
-class AgendaPagerAdapter(private val activity: Activity) : PagerAdapter() {
+class AgendaPagerAdapter(private val mAgenda: List<DaySchedule>, private val activity: Activity) : PagerAdapter() {
     private val mAgendaViews = SparseArray<View>()
 
     private var sessionFilterList: List<SessionFilter> = ArrayList()
     private val activeAdapterSet = HashSet<ScheduleDayAdapter>()
-
-    val db = FirebaseFirestore.getInstance()
 
     fun refreshSessionsSelected() {
         for (adapter in activeAdapterSet) {
