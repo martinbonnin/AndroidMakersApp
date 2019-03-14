@@ -246,7 +246,7 @@ public class AgendaFragment extends Fragment {
 
         final List<DaySchedule> days = getItemsOrdered(itemByDayOfTheYear);
 
-        final AgendaPagerAdapter adapter = new AgendaPagerAdapter(days, getActivity());
+        final AgendaPagerAdapter adapter = new AgendaPagerAdapter(getActivity());
         mViewPager.setAdapter(adapter);
         applyFilters();
 
