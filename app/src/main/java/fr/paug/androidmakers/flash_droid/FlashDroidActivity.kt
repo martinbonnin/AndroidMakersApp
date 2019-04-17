@@ -3,11 +3,14 @@ package fr.paug.androidmakers.flash_droid
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.widget.BaseAdapter
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil.setContentView
 import com.google.ar.core.ArCoreApk
 import fr.paug.androidmakers.R
+import fr.paug.androidmakers.ui.activity.BaseActivity
 
 class FlashDroidActivity : AppCompatActivity() {
     val FLASH_DROID_PREFERENCES = "FLASH_DROID_PREFERENCES"
@@ -21,7 +24,7 @@ class FlashDroidActivity : AppCompatActivity() {
 
         return if (!availability.isSupported || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             setNougatNeededFragment()
-        } else if (preferences.getBoolean(KEY_FIRST_LAUNCH, true)) {
+        } else if (true || preferences.getBoolean(KEY_FIRST_LAUNCH, true)) {
             preferences.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply()
             setOnboarding()
         } else {

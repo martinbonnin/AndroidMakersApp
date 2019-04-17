@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -12,6 +13,7 @@ import androidx.core.view.GravityCompat;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.drawerlayout.widget.DrawerLayout;
+
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -207,19 +209,26 @@ public class AgendaFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        MenuItem menuItem = menu.add(getActivity().getString(R.string.filter));
+        MenuItem menuItem = menu.add("FlashDroid");
+        menuItem.setIcon(R.drawable.ic_egg);
+        menuItem.setShowAsAction(SHOW_AS_ACTION_ALWAYS);
+        menuItem.setOnMenuItemClickListener(item -> {
+            Intent intent = new Intent();
+            intent.setClass(getContext(), FlashDroidActivity.class);
+            startActivity(intent);
+            return true;
+        });
+
+        menuItem = menu.add(getActivity().getString(R.string.filter));
         menuItem.setIcon(R.drawable.ic_filter_list_white_24dp);
         menuItem.setShowAsAction(SHOW_AS_ACTION_ALWAYS);
-        menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
-                    mDrawerLayout.closeDrawer(GravityCompat.END);
-                } else {
-                    mDrawerLayout.openDrawer(GravityCompat.END);
-                }
-                return true;
+        menuItem.setOnMenuItemClickListener(item -> {
+            if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
+                mDrawerLayout.closeDrawer(GravityCompat.END);
+            } else {
+                mDrawerLayout.openDrawer(GravityCompat.END);
             }
+            return true;
         });
     }
 

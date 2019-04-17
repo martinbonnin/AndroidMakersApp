@@ -75,6 +75,11 @@
         <activity
             android:name=".ui.activity.SessionDetailActivity"
             android:configChanges="orientation|screenSize" />
+        <activity
+            android:theme="@style/Theme.FlashDroid"
+            android:name=".flash_droid.FlashDroidActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="userPortrait"/>
 
         <receiver
             android:name=".receiver.SessionAlarmReceiver"

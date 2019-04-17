@@ -96,5 +96,7 @@
     <string name="location_sponsor">Location</string>
     <string name="specialthanks_sponsor">Special Thanks</string>
     <string name="nougat_needed">You need a newer shiner phone with nougat on it...</string>
+    <string name="flash_droid_explanation">13 bugdroids (and their pastries 🍩🍦) are hidden in the Conference.\n\nCollect them all and get a chance to win some chocolate\n🍫🍫\n!!\n\nGood luck!</string>
+    <string name="lets_go">Signin with google</string>
 
 </resources>
