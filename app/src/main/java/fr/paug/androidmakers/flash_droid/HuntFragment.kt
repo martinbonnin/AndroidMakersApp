@@ -1,4 +1,4 @@
-package fr.paug.androidmakers.ui.fragment
+package fr.paug.androidmakers.flash_droid
 
 import android.os.Build
 import android.os.Bundle
@@ -6,8 +6,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.ProgressBar
 import androidx.annotation.RequiresApi
 import com.google.ar.core.*
 import com.google.ar.sceneform.AnchorNode
@@ -22,18 +22,19 @@ import fr.paug.androidmakers.R
 import java.io.IOException
 
 @RequiresApi(Build.VERSION_CODES.N)
-class AmArFragment : ArFragment() {
+class HuntFragment : ArFragment() {
 
-    private val augmentedImageMap = mutableMapOf<AugmentedImage, Node>()
-    private var renderable: ViewRenderable? = null
+    private val trackedImages = mutableSetOf<Int>()
+    private var amHugeBanner: ViewRenderable? = null
 
     override fun onResume() {
         super.onResume()
         arSceneView.scene.addOnUpdateListener(this::onUpdateFrame);
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onPause() {
+        super.onPause()
+        arSceneView.scene.removeOnUpdateListener(this::onUpdateFrame)
     }
 
     private fun onUpdateFrame(frameTime: FrameTime) {
@@ -42,7 +43,7 @@ class AmArFragment : ArFragment() {
         // If there is no frame, renderable not loaded, or ARCore is not tracking yet, just return.
         if (frame == null
                 || frame.camera.trackingState != TrackingState.TRACKING
-                || renderable == null) {
+                || amHugeBanner == null) {
             return
         }
 
@@ -52,12 +53,12 @@ class AmArFragment : ArFragment() {
                 TrackingState.PAUSED -> {
                     // When an image is in PAUSED state, but the camera is not PAUSED, it has been detected,
                     // but not yet tracked.
-                    Log.d("AmArFragment", "Detected Image " + augmentedImage.getIndex())
+                    Log.d("HuntFragment", "Detected Image " + augmentedImage.getIndex())
                 }
 
                 TrackingState.TRACKING -> {
                     // Create a new anchor for newly found images.
-                    if (!augmentedImageMap.containsKey(augmentedImage)) {
+                    if (!trackedImages.contains(augmentedImage.index)) {
                         val base = AnchorNode()
                         base.anchor = augmentedImage.createAnchor(augmentedImage.centerPose)
 
@@ -67,21 +68,22 @@ class AmArFragment : ArFragment() {
                         node.localRotation = Quaternion.axisAngle(Vector3(1.0f, 0f, 0f), -90f)
                         node.localScale = Vector3(augmentedImage.extentX, augmentedImage.extentZ, 0f)
 
-                        node.renderable = renderable
+                        node.renderable = amHugeBanner
 
-                        augmentedImageMap.put(augmentedImage, node)
+                        trackedImages.add(augmentedImage.index)
                         arSceneView.scene.addChild(base)
                     }
                 }
 
-                TrackingState.STOPPED -> augmentedImageMap.remove(augmentedImage)
+                TrackingState.STOPPED -> trackedImages.remove(augmentedImage.index)
             }
         }
     }
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = super.onCreateView(inflater, container, savedInstanceState)
+        val frameLayout = FrameLayout(container!!.context)
+        val view = super.onCreateView(inflater, frameLayout, savedInstanceState)
 
         // Turn off the plane discovery since we're only looking for images
         planeDiscoveryController.hide()
@@ -92,23 +94,24 @@ class AmArFragment : ArFragment() {
         view2.setImageResource(R.drawable.am)
         ViewRenderable.builder().setView(context, view2).build().handle { renderable, throwable ->
             if (throwable != null) {
-                Log.e("AmArFragment", "Ooops")
+                Log.e("HuntFragment", "Ooops")
             } else {
                 val size = Vector3(1.0f, 1.0f, 1.0f)
                 renderable.sizer = ViewSizer {
                     size
                 }
-                this.renderable = renderable
+                this.amHugeBanner = renderable
             }
         }
 
-        return view
+        frameLayout.addView(view)
+        return frameLayout
     }
 
     override fun getSessionConfiguration(session: Session): Config {
         val config = super.getSessionConfiguration(session)
         if (!setupAugmentedImageDatabase(config, session)) {
-            Log.e("AmArFragment", "Could not setup augmented image database")
+            Log.e("HuntFragment", "Could not setup augmented image database")
         }
         return config
     }
@@ -120,17 +123,15 @@ class AmArFragment : ArFragment() {
             return false
         }
 
-
         try {
             context!!.assets.open("images.imgdb").use {
                 config.augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, it)
             }
         } catch (e: IOException) {
-            Log.e("AmArFragment", "IO exception loading augmented image database.", e)
+            Log.e("HuntFragment", "IO exception loading augmented image database.", e)
             return false
         }
 
         return true
     }
-
 }

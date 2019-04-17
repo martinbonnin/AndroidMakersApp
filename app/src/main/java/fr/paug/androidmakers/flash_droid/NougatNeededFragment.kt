@@ -1,4 +1,4 @@
-package fr.paug.androidmakers.ui.fragment
+package fr.paug.androidmakers.flash_droid
 
 import android.os.Bundle
 import android.view.LayoutInflater

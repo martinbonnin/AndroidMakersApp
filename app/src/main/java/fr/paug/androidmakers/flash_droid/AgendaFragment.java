@@ -1,4 +1,4 @@
-package fr.paug.androidmakers.ui.fragment;
+package fr.paug.androidmakers.flash_droid;
 
 import android.content.Context;
 import android.content.Intent;

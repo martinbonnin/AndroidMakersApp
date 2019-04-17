@@ -1,1 +1,2 @@
-bugdroid|bugdroid.jpeg
+0|0.jpeg
+1|1.jpeg
